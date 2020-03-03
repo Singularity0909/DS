@@ -1,0 +1,65 @@
+{
+  "package": "cn.macrohard.app",
+  "name": "Singularity",
+  "versionName": "1.0.0",
+  "versionCode": "1",
+  "minPlatformVersion": "1020",
+  "icon": "/Common/icon.png",
+  "features": [
+    { "name": "system.prompt" },
+    { "name": "system.router" },
+    { "name": "system.shortcut" },
+    { "name": "system.barcode" },
+    { "name": "system.device" },
+    { "name": "system.fetch" },
+    { "name": "system.vibrator" }
+  ],
+  "permissions": [
+    { "origin": "*" }
+  ],
+  "config": {
+    "logLevel": "log"
+  },
+  "router": {
+    "entry": "Home",
+    "pages": {
+      "Home": {
+        "component": "index"
+      },
+      "About": {
+        "component": "index"
+      }
+    },
+    "widgets": {
+      "CardDemo": {
+        "name": "CardDemo",
+        "description": "快应用卡片展示",
+        "component": "index",
+        "path": "/CardDemo",
+        "features": []
+      }
+    }
+  },
+  "display": {
+    "titleBar": true,
+    "titleBarText": "Singularity",
+    "titleBarTextColor": "#ffffff",
+    "titleBarBackgroundColor": "#15aabf",
+    "backgroundColor": "#f1f3f5",
+    "fullScreen": false,
+    "menu": false,
+    "pages": {
+      "Home": {
+        "menu": true
+      },
+      "Detail": {
+        "titleBarText": "详情",
+        "titleBar": false
+      },
+      "About": {
+        "titleBarText": "关于",
+        "backgroundColor": "#ffffff"
+      }
+    }
+  }
+}
