@@ -26,8 +26,8 @@ def getId():
 
 def qpop():
     while True:
+        time.sleep(5)
         if q:
-            time.sleep(5)
             q.pop(0)
 
 
