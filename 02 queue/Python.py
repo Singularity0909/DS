@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import time
 import threading
 
@@ -17,17 +17,17 @@ def getId():
             return '成功加入队列'
     if request.method == 'GET':
         id = request.args.get('id')
-        tot = '当前队列中共有 ' + str(len(q)) + ' 人\n'
+        size = len(q)
+        pos = 0
         if q.count(id):
-            return tot + '您在队列中的位置为 ' + str(q.index(id) + 1)
-        else:
-            return tot + '您不在队列中 等待扫码'
+            pos = q.index(id) + 1
+        return jsonify({'size': size, 'pos': pos})
 
 
 def qpop():
     while True:
-        time.sleep(20)
         if q:
+            time.sleep(5)
             q.pop(0)
 
 

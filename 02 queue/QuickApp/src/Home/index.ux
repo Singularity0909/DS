@@ -8,18 +8,12 @@
       <image class = "swiper-item" src = "https://cdn.jsdelivr.net/gh/singularity0909/cdn/img/gallery/amazing-landscape-4.jpg"></image>
       <image class = "swiper-item" src = "https://cdn.jsdelivr.net/gh/singularity0909/cdn/img/gallery/amazing-landscape-5.jpg"></image>
     </swiper>
-    <input class = "btn" type = "button" value = "扫描二维码" onclick = "scan">
-    <input class = "btn" type = "button" value = "刷新队列状态" onclick = "refresh">
-    <text class="status">{{QueueStatus}}</text>
+    <text class = "status">{{queueStatus}}</text>
+    <input class = "btn" type = "button" value = "扫描二维码" onclick = "scan"></input>
   </div>
 </template>
 
 <style>
-  .title {
-    font-size: 40px;
-    text-align: center;
-  }
-
   .home-page {
     align-items: center;
     flex-direction: column;
@@ -27,6 +21,14 @@
 
   .swiper {
     height: 420px;
+  }
+
+  .status {
+    height: 400px;
+    text-align: center;
+    margin-top: 200px;
+    font-size: 40px;
+    line-height: 80px;
   }
 
   .btn {
@@ -37,12 +39,6 @@
     background-color: #15aabf;
     font-size: 30px;
     color: #ffffff;
-  }
-
-  .status {
-    margin-top: 200px;
-    font-size: 40px;
-    line-height: 60px;
   }
 </style>
 
@@ -56,10 +52,12 @@
 
   export default {
     private: {
-      title: 'Singularity',
       url: '',
       id: '',
-      QueueStatus: ''
+      size: 0,
+      pos: 0,
+      ntf: 0,
+      queueStatus: '扫码以获取队列状态'
     },
     onInit() {
       const self = this
@@ -78,23 +76,8 @@
             mode: 'short'
           })
           prompt.showToast({
-            message: '设备标识码获取失败，请检查权限'
+            message: '设备标识码获取失败 请检查权限'
           })
-        }
-      })
-    },
-    refresh() {
-      const self = this
-      fetch.fetch({
-        url: self.url,
-        data: {"id": self.id},
-        method: 'GET',
-        responseType: 'text',
-        success: (response) => {
-          self.QueueStatus = response.data
-        },
-        fail: (data, code) => {
-          self.QueueStatus = '扫码以获取队列状态'
         }
       })
     },
@@ -103,6 +86,43 @@
       barcode.scan({
         success: (data) => {
           self.url = data.result
+          // 初次扫码以获取url，线程刷新队列状态
+          setInterval(() => {
+            fetch.fetch({
+              url: self.url,
+              data: {"id": self.id},
+              method: 'GET',
+              responseType: 'json',
+              success: (response) => {
+                self.size = response.data['size']
+                self.pos = response.data['pos']
+                self.queueStatus = '当前队列中共有 ' + String(self.size) + ' 人\n'
+                if (self.pos == 0) {
+                  self.queueStatus += '您不在队列中 等待扫码'
+                  self.ntf = 0
+                }
+                else {
+                  self.queueStatus += '您在队列中的位置为 ' + String(self.pos)
+                  if (self.pos == 1) {
+                    if (self.ntf == 0) {
+                      self.ntf = 1
+                      vibrator.vibrate({
+                        mode: 'long'
+                      })
+                      prompt.showToast({
+                        message: '您是队首 5秒内将自动出队',
+                        duration: 1
+                      })
+                    }
+                  }
+                }
+              },
+              fail: (data, code) => {
+                self.queueStatus = '队列状态获取失败 请检查网络'
+              }
+            })
+        	}, 500),
+          // 申请加入队列
           fetch.fetch({
             url: self.url,
             header: {"id": self.id},
@@ -121,7 +141,7 @@
                 mode: 'short'
               })
               prompt.showToast({
-                message: '加入队列失败，请检查网络或联系开发者'
+                message: '队列状态获取失败 请检查网络'
               })
             }
           })
@@ -131,7 +151,7 @@
             mode: 'short'
           })
           prompt.showToast({
-            message: '扫码组件初始化失败，请检查权限'
+            message: '扫码组件初始化失败 请检查权限'
           })
         }
       })
