@@ -81,6 +81,7 @@
           })
         }
       }),
+      // 线程持续刷新队列状态
       setInterval(() => {
         fetch.fetch({
           url: self.url,
