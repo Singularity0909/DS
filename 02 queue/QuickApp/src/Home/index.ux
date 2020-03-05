@@ -56,6 +56,7 @@
       id: '',
       size: 0,
       pos: 0,
+      itv: 0,
       ntf: 0,
       queueStatus: '扫码以获取队列状态'
     },
@@ -79,49 +80,51 @@
             message: '设备标识码获取失败 请检查权限'
           })
         }
-      })
+      }),
+      setInterval(() => {
+        fetch.fetch({
+          url: self.url,
+          data: {"id": self.id},
+          method: 'GET',
+          responseType: 'json',
+          success: (response) => {
+            self.size = response.data['size']
+            self.pos = response.data['pos']
+            self.itv = response.data['itv']
+            self.queueStatus = '当前队列中共有 ' + String(self.size) + ' 人\n'
+            if (self.pos == 0) {
+              self.queueStatus += '您不在队列中 等待扫码'
+              self.ntf = 0
+            }
+            else {
+              self.queueStatus += '您在队列中的位置为 ' + String(self.pos)
+              if (self.pos == 1) {
+                if (self.ntf == 0) {
+                  self.ntf = 1
+                  vibrator.vibrate({
+                    mode: 'long'
+                  })
+                  prompt.showToast({
+                    message: '您是队首 ' + String(self.itv) + '秒内将自动出队',
+                    duration: 1
+                  })
+                }
+              }
+            }
+          },
+          fail: (data, code) => {
+            if (self.url != '') {
+              self.queueStatus = '队列状态获取失败 请检查网络'
+            }
+          }
+        })
+      }, 500)
     },
     scan() {
       const self = this
       barcode.scan({
         success: (data) => {
           self.url = data.result
-          // 初次扫码以获取url，线程刷新队列状态
-          setInterval(() => {
-            fetch.fetch({
-              url: self.url,
-              data: {"id": self.id},
-              method: 'GET',
-              responseType: 'json',
-              success: (response) => {
-                self.size = response.data['size']
-                self.pos = response.data['pos']
-                self.queueStatus = '当前队列中共有 ' + String(self.size) + ' 人\n'
-                if (self.pos == 0) {
-                  self.queueStatus += '您不在队列中 等待扫码'
-                  self.ntf = 0
-                }
-                else {
-                  self.queueStatus += '您在队列中的位置为 ' + String(self.pos)
-                  if (self.pos == 1) {
-                    if (self.ntf == 0) {
-                      self.ntf = 1
-                      vibrator.vibrate({
-                        mode: 'long'
-                      })
-                      prompt.showToast({
-                        message: '您是队首 5秒内将自动出队',
-                        duration: 1
-                      })
-                    }
-                  }
-                }
-              },
-              fail: (data, code) => {
-                self.queueStatus = '队列状态获取失败 请检查网络'
-              }
-            })
-        	}, 500),
           // 申请加入队列
           fetch.fetch({
             url: self.url,

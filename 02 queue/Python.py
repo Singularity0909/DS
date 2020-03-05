@@ -4,6 +4,7 @@ import threading
 
 app = Flask(__name__)
 q = []
+itv = 10
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -21,12 +22,12 @@ def getId():
         pos = 0
         if q.count(id):
             pos = q.index(id) + 1
-        return jsonify({'size': size, 'pos': pos})
+        return jsonify({'size': size, 'pos': pos, 'itv': itv})
 
 
 def qpop():
     while True:
-        time.sleep(5)
+        time.sleep(itv)
         if q:
             q.pop(0)
 
