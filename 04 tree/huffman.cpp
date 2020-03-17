@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <streambuf>
+#include <cstring>
 #include <cmath>
 #include <vector>
 #include <queue>
