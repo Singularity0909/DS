@@ -7,8 +7,8 @@
 #include <queue>
 using namespace std;
 
-int tot, cnt[256], val[256];
-string code[256];
+int cnt[256], val[256];
+string text, code[256];
 struct node
 {
     char c;
@@ -44,15 +44,12 @@ node* build()
     return rt;
 }
 
-void dfs(node* now, string path)
+void dfs(node* now, const string& path)
 {
-    if (now->isLeaf())
-    {
-        code[now->c] = path;
-        return;
-    }
-    if (now->ls) dfs(now->ls, path + "0");
-    if (now->rs) dfs(now->rs, path + "1");
+    if (now == nullptr) return;
+    if (now->isLeaf()) code[now->c] = path;
+    dfs(now->ls, path + "0");
+    dfs(now->rs, path + "1");
 }
 
 int getVal(const string& s)
@@ -70,13 +67,13 @@ void encode()
     cin >> file_in;
     cout << "请输入加密后的文件名: ";
     cin >> file_out;
-    tot = 0;
+    int tot = 0;
     memset(cnt, 0, sizeof(cnt));
     ifstream in(file_in + ".txt");
-    string text((istreambuf_iterator<char>(in)), istreambuf_iterator<char>());
+    text = string((istreambuf_iterator<char>(in)), istreambuf_iterator<char>());
+    in.close();
     int len = (int)text.length();
     for (int i = 0; i < len; i++) cnt[text[i]]++;
-    in.close();
     for (int i = 0; i < 256; i++)
     {
         if (cnt[i])
@@ -87,7 +84,9 @@ void encode()
     }
     node* rt = build();
     dfs(rt, "");
-//    for (int i = 0; i < 256; i++) if (cnt[i]) cout << char(i) << " " << code[i] << endl;
+    for (int i = 0; i < 256; i++)
+        if (cnt[i])
+            cout << char(i) << " " << code[i] << endl;
     ofstream out(file_out + ".txt", ios::binary);
     out.write((char*)&tot, 4);
     for (int i = 0; i < 256; i++)
@@ -97,7 +96,7 @@ void encode()
             int val = getVal(code[i]);
             int len = (int)code[i].length();
             out.write((char*)&i, 1);
-            out.write((char*)&val, 2);
+            out.write((char*)&val, 4);
             out.write((char*)&len, 4);
         }
     }
@@ -106,7 +105,7 @@ void encode()
     for (int i = 0; i < len; i++) codes += code[text[i]];
     len = (int)codes.length();
     int tail = len % 8;
-    len += tail;
+    len += 8 - tail;
     for (int i = 0; i < 8 - tail; i++) codes += "0";
     for (int i = 0; i < len / 8; i++)
     {
@@ -146,12 +145,13 @@ void decode()
     cin >> file_out;
     memset(val, 0, sizeof(val));
     ifstream in(file_in + ".txt", ios::binary);
+    int tot = 0;
     in.read((char*)&tot, 4);
     for (int i = 0; i < tot; i++)
     {
         char c;
         in.read((char*)&c, 1);
-        in.read((char*)&val[c], 2);
+        in.read((char*)&val[c], 4);
         in.read((char*)&cnt[c], 4);
     }
     int tlen;
