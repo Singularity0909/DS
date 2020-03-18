@@ -8,7 +8,7 @@
 using namespace std;
 
 int cnt[256], val[256];
-string text, code[256];
+string codes, text, code[256];
 struct node
 {
     char c;
@@ -156,7 +156,8 @@ void decode()
     }
     int tlen;
     in.read((char*)&tlen, 4);
-    string codes, text;
+    codes.clear();
+    text.clear();
     while (!in.eof())
     {
         int code;
