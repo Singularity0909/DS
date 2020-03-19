@@ -23,7 +23,7 @@ struct node
     bool isLeaf() { return !ls && !rs; }
     bool operator < (const node& x) { return v > x.v; }
 };
-struct cmp { bool operator () (node* a, node* b) { return *a < *b; } };
+struct cmp { bool operator() (node* a, node* b) { return *a < *b; } };
 priority_queue<node*, vector<node*>, cmp> q;
 
 node* build()
