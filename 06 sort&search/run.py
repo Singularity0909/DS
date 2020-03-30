@@ -66,7 +66,7 @@ def partition(arr, low, high, key):
             i = i + 1
             arr[i], arr[j] = arr[j], arr[i]
     arr[i + 1], arr[high] = arr[high], arr[i + 1]
-    return (i + 1)
+    return i + 1
 
 
 def quickSort(arr, low, high, key):
@@ -77,7 +77,7 @@ def quickSort(arr, low, high, key):
 
 
 def dispData():
-    print('Rank', 'Handle', 'Rating', 'Country', 'AC')
+    print('Rank', 'Handle', 'Rating', 'Country', 'Accepted')
     for i in range(len(data)):
         print(i + 1, data[i]['handle'], data[i]['rating'],
               data[i]['country'], data[i]['acnumber'])
@@ -119,7 +119,7 @@ def chooseFunc():
 def showMenu():
     while True:
         print('1. Output all info ordered by rating')
-        print('2. Output all info ordered by number of Accepted problems')
+        print('2. Output all info ordered by number of accepted problems')
         print('3. Count the number of users whose rating exceeds ___')
         print('4. Count the number of users who pass problems more than ___')
         print('5. Quit')
